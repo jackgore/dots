@@ -67,7 +67,7 @@ func (suite *YamlTestSuite) writeToTempFile(contents string) string {
 func (suite *YamlTestSuite) TestGetString() {
 	// Create tmp yaml object
 	fname := suite.writeToTempFile(testYaml)
-	config, err := New(fname)
+	config, err := NewYaml(fname)
 	suite.Nil(err)
 	suite.NotNil(config)
 	defer suite.removeTempFile(fname) // clean up
@@ -83,27 +83,27 @@ func (suite *YamlTestSuite) TestGetString() {
 	suite.Equal(s, "")
 }
 
-func (suite *YamlTestSuite) TestNew() {
+func (suite *YamlTestSuite) TestNewYaml() {
 	// Trying to read a yaml file that doesnt exist should fail
-	y, err := New("/var/logs/test/this/never/will/exist/at/least/i/hope/not")
+	y, err := NewYaml("/var/logs/test/this/never/will/exist/at/least/i/hope/not")
 	suite.Nil(y)
 	suite.NotNil(err)
 
 	// Trying to read a yaml file with a garbage path should fail
-	y, err = New("what even is this")
+	y, err = NewYaml("what even is this")
 	suite.Nil(y)
 	suite.NotNil(err)
 
 	// Opening an existing file with invalid yaml should fail
 	fname := suite.writeToTempFile(invalidYaml)
-	y, err = New(fname)
+	y, err = NewYaml(fname)
 	suite.NotNil(err)
 	suite.Nil(y)
 	suite.removeTempFile(fname)
 
 	// Opening a valid yaml file should work
 	fname = suite.writeToTempFile(testYaml)
-	y, err = New(fname)
+	y, err = NewYaml(fname)
 	suite.Nil(err)
 	suite.NotNil(y)
 	suite.removeTempFile(fname)

@@ -20,7 +20,7 @@ type Yaml struct {
 }
 
 // Constructs a Yaml config object from the file at path
-func New(path string) (*Yaml, error) {
+func NewYaml(path string) (*Yaml, error) {
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Printf("Unable to find yaml file at path: %v\n%v\n", path, err)
