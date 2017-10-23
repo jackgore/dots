@@ -24,6 +24,18 @@ x:
       d: hello
       e: 100
 `
+	boolYaml = `
+--- 
+x: false
+y: 100
+i: 
+  j: true
+a: 
+  b:
+    c:
+      d: true
+      e: false
+`
 	invalidYaml = `
 --- 
 a: 
@@ -65,6 +77,46 @@ func (suite *YamlTestSuite) writeToTempFile(contents string) string {
 	return tmpfile.Name()
 }
 
+func (suite *YamlTestSuite) TestGetBool() {
+	// Create tmp yaml object
+	fname := suite.writeToTempFile(boolYaml)
+	config, err := New(fname)
+	suite.Nil(err)
+	suite.NotNil(config)
+	defer suite.removeTempFile(fname) // clean up
+
+	// Should be able to get a key that exists
+	b, err := config.GetBool("i.j")
+	suite.Nil(err)
+	suite.Equal(true, b)
+
+	// Should be able to get a key that exists
+	b, err = config.GetBool("x")
+	suite.Nil(err)
+	suite.Equal(false, b)
+
+	// Should be able to get a key that exists
+	b, err = config.GetBool("a.b.c.d")
+	suite.Nil(err)
+	suite.Equal(true, b)
+
+	// Should fail if key does not exist
+	_, err = config.GetBool("a.keydoesntexist")
+	suite.NotNil(err)
+
+	// Should fail if key is empty
+	_, err = config.GetBool("")
+	suite.NotNil(err)
+
+	// Should fail if a middle part of path doesnt exist
+	_, err = config.GetBool("x.b.fake.d")
+	suite.NotNil(err)
+
+	// Should fail if we try to get a key that is not a bool
+	_, err = config.GetBool("y")
+	suite.NotNil(err)
+}
+
 func (suite *YamlTestSuite) TestGetInt() {
 	// Create tmp yaml object
 	fname := suite.writeToTempFile(testYaml)
@@ -103,7 +155,7 @@ func (suite *YamlTestSuite) TestGetInt() {
 	suite.NotNil(err)
 	suite.Equal(0, i)
 
-	// Should fail if we try to get a key that is not a string
+	// Should fail if we try to get a key that is not an int
 	i, err = config.GetInt("a.host")
 	suite.NotNil(err)
 	suite.Equal(0, i)

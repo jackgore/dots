@@ -15,6 +15,7 @@ type Yaml struct {
 	data map[string]interface{}
 
 	// For caching
+	bools   map[string]bool
 	strings map[string]string
 	ints    map[string]int
 }
@@ -40,6 +41,7 @@ func New(path string) (*Yaml, error) {
 	y := &Yaml{data: data}
 	y.strings = make(map[string]string)
 	y.ints = make(map[string]int)
+	y.bools = make(map[string]bool)
 
 	return y, nil
 }
@@ -120,4 +122,28 @@ func (y *Yaml) GetInt(key string) (int, error) {
 	y.ints[key] = i
 
 	return i, nil
+}
+
+func (y *Yaml) GetBool(key string) (bool, error) {
+	// Before we try to unwrap in yaml file lets check our cache
+	if val, ok := y.bools[key]; ok {
+		return val, nil
+	}
+
+	// Otherwise its not in our cache so unwrap the value
+	val, err := y.unwrap(key, y.data)
+	if err != nil {
+		return false, fmt.Errorf("Unable to unwrap nested value: %v\n", err)
+	}
+
+	// See if what we get is actually a string
+	b, ok := val.(bool)
+	if !ok {
+		return false, fmt.Errorf("Expected string value for key %v but found %T", key, reflect.TypeOf(val))
+	}
+
+	// Insert into our cache
+	y.bools[key] = b
+
+	return b, nil
 }
