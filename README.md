@@ -1,7 +1,7 @@
 # dots
 
 ## Introduction
-The dots package creates a configuration object that allows you to parse yaml files and access them using dot syntax in Go. 
+The dots package creates a configuration object that allows you to parse yaml files and access them using dot syntax (i.e "a.b.c.d") in Go. 
 It is dependent on the Yaml parsing ability of the [go-yaml](https://github.com/go-yaml/yaml) library.
 
 ## Example
