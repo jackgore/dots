@@ -1,0 +1,4 @@
+vendor
+Gopkg.lock
+.DS_STORE
+*.swp
