@@ -7,18 +7,18 @@ It is dependent on the Yaml parsing ability of the [go-yaml](https://github.com/
 ## Example
 Given the following `example.yml`:
 
-
-    ---
-    a:
-      b:
-        c: "Hello, World"
-        d: 600
-
+```yaml
+---
+a:
+  b:
+    c: "Hello, World"
+    d: 600
+```
 
 
 In the `main.go` file we access fields like so:
 
-```
+```go
 package main
 
 import (
