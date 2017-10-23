@@ -76,6 +76,34 @@ func (y *Yaml) unwrap(key string, data map[string]interface{}) (interface{}, err
 	return nil, errors.New("something unexpected happened while unwrapping value")
 }
 
+func (y *Yaml) GetStrings(keys []string) ([]string, error) {
+	vals := make([]string, len(keys))
+
+	for i, key := range keys {
+		s, err := y.GetString(key)
+		if err != nil {
+			return nil, fmt.Errorf("Key %v not found in configuration.\n", key)
+		}
+		vals[i] = s
+	}
+
+	return vals, nil
+}
+
+func (y *Yaml) GetInts(keys []string) ([]int, error) {
+	vals := make([]int, len(keys))
+
+	for i, key := range keys {
+		s, err := y.GetInt(key)
+		if err != nil {
+			return nil, fmt.Errorf("Key %v not found in configuration.\n", key)
+		}
+		vals[i] = s
+	}
+
+	return vals, nil
+}
+
 func (y *Yaml) GetString(key string) (string, error) {
 	// Before we try to unwrap in yaml file lets check our cache
 	if val, ok := y.strings[key]; ok {

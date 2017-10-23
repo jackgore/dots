@@ -77,6 +77,58 @@ func (suite *YamlTestSuite) writeToTempFile(contents string) string {
 	return tmpfile.Name()
 }
 
+func (suite *YamlTestSuite) TestGetStrings() {
+	var emptySlice []string
+
+	// Create tmp yaml object
+	fname := suite.writeToTempFile(testYaml)
+	config, err := New(fname)
+	suite.Nil(err)
+	suite.NotNil(config)
+	defer suite.removeTempFile(fname) // clean up
+
+	// Should be able to get keys that exists
+	s, err := config.GetStrings([]string{"y", "a.host", "x.b.c.d"})
+	suite.Nil(err)
+	suite.Equal([]string{"jack", "localhost", "hello"}, s)
+
+	// Should fail if one of the keys doesnt exist
+	s, err = config.GetStrings([]string{"y", "a.fake.not.real.host", "x.b.c.d"})
+	suite.NotNil(err)
+	suite.Equal(emptySlice, s)
+
+	// Should fail if one of the keys is wrong type
+	s, err = config.GetStrings([]string{"z", "a.host", "x.b.c.d"})
+	suite.NotNil(err)
+	suite.Equal(emptySlice, s)
+}
+
+func (suite *YamlTestSuite) TestGetInts() {
+	var emptySlice []int
+
+	// Create tmp yaml object
+	fname := suite.writeToTempFile(testYaml)
+	config, err := New(fname)
+	suite.Nil(err)
+	suite.NotNil(config)
+	defer suite.removeTempFile(fname) // clean up
+
+	// Should be able to get keys that exists
+	s, err := config.GetInts([]string{"z", "a.port", "x.b.c.e"})
+	suite.Nil(err)
+	suite.Equal([]int{100, 5000, 100}, s)
+
+	// Should fail if one of the keys doesnt exist
+	s, err = config.GetInts([]string{"z", "a.fake.not.real.host", "x.b.c.e"})
+	suite.NotNil(err)
+	suite.Equal(emptySlice, s)
+
+	// Should fail if one of the keys is wrong type
+	s, err = config.GetInts([]string{"y", "a.port", "x.b.c.d"})
+	suite.NotNil(err)
+	suite.Equal(emptySlice, s)
+}
+
 func (suite *YamlTestSuite) TestGetBool() {
 	// Create tmp yaml object
 	fname := suite.writeToTempFile(boolYaml)
