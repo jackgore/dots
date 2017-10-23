@@ -18,24 +18,31 @@ Given the following `example.yml`:
 
 In the `main.go` file we access fields like so:
 
-    package main
+```
+package main
 
-    import (
-        "fmt"
-        "log"
+import (
+    "fmt"
+    "log"
 
-        "github.com/JonathonGore/dots/yaml"
-    )
+    "github.com/JonathonGore/dots/yaml"
+)
 
-    func main() {
-        y, err := yaml.New("example.yml")
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        s, _ := y.GetString("a.b.c")
-        i, _ := y.GetInt("a.b.d")
-
-        fmt.Printf("%v\n", s)
-        fmt.Printf("%v\n", i)
+func main() {
+    y, err := yaml.New("example.yml")
+    if err != nil {
+        log.Fatal(err)
     }
+
+    s, _ := y.GetString("a.b.c")
+    i, _ := y.GetInt("a.b.d")
+
+    fmt.Printf("%v\n", s)
+    fmt.Printf("%v\n", i)
+}
+```
+    
+This will output:
+
+    Hello, World
+    600
