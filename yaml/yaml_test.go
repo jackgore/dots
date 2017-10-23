@@ -13,6 +13,8 @@ const (
 	// Ugly but needed for hardcoding yaml which is sensitive to spacing
 	testYaml = `
 --- 
+y: jack
+z: 100
 a: 
   host: localhost
   port: 5000
@@ -77,12 +79,22 @@ func (suite *YamlTestSuite) TestGetInt() {
 	suite.Equal(5000, i)
 
 	// Should be able to get a key that exists
+	i, err = config.GetInt("z")
+	suite.Nil(err)
+	suite.Equal(100, i)
+
+	// Should be able to get a key that exists
 	i, err = config.GetInt("x.b.c.e")
 	suite.Nil(err)
 	suite.Equal(100, i)
 
 	// Should fail if key does not exist
 	i, err = config.GetInt("a.keydoesntexist")
+	suite.NotNil(err)
+	suite.Equal(0, i)
+
+	// Should fail if key is empty
+	i, err = config.GetInt("")
 	suite.NotNil(err)
 	suite.Equal(0, i)
 
@@ -111,6 +123,11 @@ func (suite *YamlTestSuite) TestGetString() {
 	suite.Equal("localhost", s)
 
 	// Should be able to get a key that exists
+	s, err = config.GetString("y")
+	suite.Nil(err)
+	suite.Equal("jack", s)
+
+	// Should be able to get a key that exists
 	s, err = config.GetString("x.b.c.d")
 	suite.Nil(err)
 	suite.Equal("hello", s)
@@ -120,12 +137,17 @@ func (suite *YamlTestSuite) TestGetString() {
 	suite.NotNil(err)
 	suite.Equal("", s)
 
+	// Should fail if key does not exist
+	s, err = config.GetString("")
+	suite.NotNil(err)
+	suite.Equal("", s)
+
 	// Should fail if a middle part of path doesnt exist
 	s, err = config.GetString("x.b.fake.d")
 	suite.NotNil(err)
 	suite.Equal("", s)
 
-	// Should fail if we try to get a key that is not a string
+	// Should fail if we try to access key that is not string
 	s, err = config.GetString("a.port")
 	suite.NotNil(err)
 	suite.Equal("", s)
