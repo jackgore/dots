@@ -13,25 +13,24 @@ const (
 	// Ugly but needed for hardcoding yaml which is sensitive to spacing
 	testYaml = `
 --- 
-facebook: 
+a: 
   host: localhost
   port: 5000
-hacker-news: 
-  host: localhost
-  port: 3001
-reddit: 
-  host: localhost
-  port: 3001
+x: 
+  b:
+    c:
+      d: hello
+      e: 100
 `
 	invalidYaml = `
 --- 
-facebook: 
+a: 
 host: localhost
   port: 5000
-hacker-news: 
+b: 
   host: localhost
   port: 3001
-reddit: 
+c: 
   host: localhost
   port: 3001
 `
@@ -64,6 +63,40 @@ func (suite *YamlTestSuite) writeToTempFile(contents string) string {
 	return tmpfile.Name()
 }
 
+func (suite *YamlTestSuite) TestGetInt() {
+	// Create tmp yaml object
+	fname := suite.writeToTempFile(testYaml)
+	config, err := New(fname)
+	suite.Nil(err)
+	suite.NotNil(config)
+	defer suite.removeTempFile(fname) // clean up
+
+	// Should be able to get a key that exists
+	i, err := config.GetInt("a.port")
+	suite.Nil(err)
+	suite.Equal(5000, i)
+
+	// Should be able to get a key that exists
+	i, err = config.GetInt("x.b.c.e")
+	suite.Nil(err)
+	suite.Equal(100, i)
+
+	// Should fail if key does not exist
+	i, err = config.GetInt("a.keydoesntexist")
+	suite.NotNil(err)
+	suite.Equal(0, i)
+
+	// Should fail if a middle part of path doesnt exist
+	i, err = config.GetInt("x.b.fake.d")
+	suite.NotNil(err)
+	suite.Equal(0, i)
+
+	// Should fail if we try to get a key that is not a string
+	i, err = config.GetInt("a.host")
+	suite.NotNil(err)
+	suite.Equal(0, i)
+}
+
 func (suite *YamlTestSuite) TestGetString() {
 	// Create tmp yaml object
 	fname := suite.writeToTempFile(testYaml)
@@ -73,14 +106,29 @@ func (suite *YamlTestSuite) TestGetString() {
 	defer suite.removeTempFile(fname) // clean up
 
 	// Should be able to get a key that exists
-	s, err := config.GetString("facebook.host")
+	s, err := config.GetString("a.host")
 	suite.Nil(err)
-	suite.Equal(s, "localhost")
+	suite.Equal("localhost", s)
+
+	// Should be able to get a key that exists
+	s, err = config.GetString("x.b.c.d")
+	suite.Nil(err)
+	suite.Equal("hello", s)
 
 	// Should fail if key does not exist
-	s, err = config.GetString("facebook.keydoesntexist")
+	s, err = config.GetString("a.keydoesntexist")
 	suite.NotNil(err)
-	suite.Equal(s, "")
+	suite.Equal("", s)
+
+	// Should fail if a middle part of path doesnt exist
+	s, err = config.GetString("x.b.fake.d")
+	suite.NotNil(err)
+	suite.Equal("", s)
+
+	// Should fail if we try to get a key that is not a string
+	s, err = config.GetString("a.port")
+	suite.NotNil(err)
+	suite.Equal("", s)
 }
 
 func (suite *YamlTestSuite) TestNew() {
