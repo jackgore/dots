@@ -13,8 +13,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s, _ := y.GetString("a.b.c")
-	i, _ := y.GetInt("a.b.d")
+	s := y.GetString("a.b.c")
+	i := y.GetInt("a.b.d")
 
 	fmt.Printf("%v\n", s)
 	fmt.Printf("%v\n", i)
