@@ -78,8 +78,6 @@ func (suite *YamlTestSuite) writeToTempFile(contents string) string {
 }
 
 func (suite *YamlTestSuite) TestGetStrings() {
-	var emptySlice []string
-
 	// Create tmp yaml object
 	fname := suite.writeToTempFile(testYaml)
 	config, err := New(fname)
@@ -88,24 +86,19 @@ func (suite *YamlTestSuite) TestGetStrings() {
 	defer suite.removeTempFile(fname) // clean up
 
 	// Should be able to get keys that exists
-	s, err := config.GetStrings([]string{"y", "a.host", "x.b.c.d"})
-	suite.Nil(err)
+	s := config.GetStrings([]string{"y", "a.host", "x.b.c.d"})
 	suite.Equal([]string{"jack", "localhost", "hello"}, s)
 
 	// Should fail if one of the keys doesnt exist
-	s, err = config.GetStrings([]string{"y", "a.fake.not.real.host", "x.b.c.d"})
-	suite.NotNil(err)
-	suite.Equal(emptySlice, s)
+	s = config.GetStrings([]string{"y", "a.fake.not.real.host", "x.b.c.d"})
+	suite.Equal([]string{"jack", "", "hello"}, s)
 
 	// Should fail if one of the keys is wrong type
-	s, err = config.GetStrings([]string{"z", "a.host", "x.b.c.d"})
-	suite.NotNil(err)
-	suite.Equal(emptySlice, s)
+	s = config.GetStrings([]string{"z", "a.host", "x.b.c.d"})
+	suite.Equal([]string{"", "localhost", "hello"}, s)
 }
 
 func (suite *YamlTestSuite) TestGetInts() {
-	var emptySlice []int
-
 	// Create tmp yaml object
 	fname := suite.writeToTempFile(testYaml)
 	config, err := New(fname)
@@ -114,19 +107,16 @@ func (suite *YamlTestSuite) TestGetInts() {
 	defer suite.removeTempFile(fname) // clean up
 
 	// Should be able to get keys that exists
-	s, err := config.GetInts([]string{"z", "a.port", "x.b.c.e"})
-	suite.Nil(err)
+	s := config.GetInts([]string{"z", "a.port", "x.b.c.e"})
 	suite.Equal([]int{100, 5000, 100}, s)
 
 	// Should fail if one of the keys doesnt exist
-	s, err = config.GetInts([]string{"z", "a.fake.not.real.host", "x.b.c.e"})
-	suite.NotNil(err)
-	suite.Equal(emptySlice, s)
+	s = config.GetInts([]string{"z", "a.fake.not.real.host", "x.b.c.e"})
+	suite.Equal([]int{100, 0, 100}, s)
 
 	// Should fail if one of the keys is wrong type
-	s, err = config.GetInts([]string{"y", "a.port", "x.b.c.d"})
-	suite.NotNil(err)
-	suite.Equal(emptySlice, s)
+	s = config.GetInts([]string{"y", "a.port", "x.b.c.d"})
+	suite.Equal([]int{0, 5000, 0}, s)
 }
 
 func (suite *YamlTestSuite) TestGetBool() {
@@ -138,35 +128,32 @@ func (suite *YamlTestSuite) TestGetBool() {
 	defer suite.removeTempFile(fname) // clean up
 
 	// Should be able to get a key that exists
-	b, err := config.GetBool("i.j")
-	suite.Nil(err)
+	b := config.GetBool("i.j")
 	suite.Equal(true, b)
 
 	// Should be able to get a key that exists
-	b, err = config.GetBool("x")
-	suite.Nil(err)
+	b = config.GetBool("x")
 	suite.Equal(false, b)
 
 	// Should be able to get a key that exists
-	b, err = config.GetBool("a.b.c.d")
-	suite.Nil(err)
+	b = config.GetBool("a.b.c.d")
 	suite.Equal(true, b)
 
 	// Should fail if key does not exist
-	_, err = config.GetBool("a.keydoesntexist")
-	suite.NotNil(err)
+	b = config.GetBool("a.keydoesntexist")
+	suite.Equal(false, b)
 
 	// Should fail if key is empty
-	_, err = config.GetBool("")
-	suite.NotNil(err)
+	b = config.GetBool("")
+	suite.Equal(false, b)
 
 	// Should fail if a middle part of path doesnt exist
-	_, err = config.GetBool("x.b.fake.d")
-	suite.NotNil(err)
+	b = config.GetBool("x.b.fake.d")
+	suite.Equal(false, b)
 
 	// Should fail if we try to get a key that is not a bool
-	_, err = config.GetBool("y")
-	suite.NotNil(err)
+	b = config.GetBool("y")
+	suite.Equal(false, b)
 }
 
 func (suite *YamlTestSuite) TestGetInt() {
@@ -178,38 +165,31 @@ func (suite *YamlTestSuite) TestGetInt() {
 	defer suite.removeTempFile(fname) // clean up
 
 	// Should be able to get a key that exists
-	i, err := config.GetInt("a.port")
-	suite.Nil(err)
+	i := config.GetInt("a.port")
 	suite.Equal(5000, i)
 
 	// Should be able to get a key that exists
-	i, err = config.GetInt("z")
-	suite.Nil(err)
+	i = config.GetInt("z")
 	suite.Equal(100, i)
 
 	// Should be able to get a key that exists
-	i, err = config.GetInt("x.b.c.e")
-	suite.Nil(err)
+	i = config.GetInt("x.b.c.e")
 	suite.Equal(100, i)
 
 	// Should fail if key does not exist
-	i, err = config.GetInt("a.keydoesntexist")
-	suite.NotNil(err)
+	i = config.GetInt("a.keydoesntexist")
 	suite.Equal(0, i)
 
 	// Should fail if key is empty
-	i, err = config.GetInt("")
-	suite.NotNil(err)
+	i = config.GetInt("")
 	suite.Equal(0, i)
 
 	// Should fail if a middle part of path doesnt exist
-	i, err = config.GetInt("x.b.fake.d")
-	suite.NotNil(err)
+	i = config.GetInt("x.b.fake.d")
 	suite.Equal(0, i)
 
 	// Should fail if we try to get a key that is not an int
-	i, err = config.GetInt("a.host")
-	suite.NotNil(err)
+	i = config.GetInt("a.host")
 	suite.Equal(0, i)
 }
 
@@ -222,38 +202,31 @@ func (suite *YamlTestSuite) TestGetString() {
 	defer suite.removeTempFile(fname) // clean up
 
 	// Should be able to get a key that exists
-	s, err := config.GetString("a.host")
-	suite.Nil(err)
+	s := config.GetString("a.host")
 	suite.Equal("localhost", s)
 
 	// Should be able to get a key that exists
-	s, err = config.GetString("y")
-	suite.Nil(err)
+	s = config.GetString("y")
 	suite.Equal("jack", s)
 
 	// Should be able to get a key that exists
-	s, err = config.GetString("x.b.c.d")
-	suite.Nil(err)
+	s = config.GetString("x.b.c.d")
 	suite.Equal("hello", s)
 
 	// Should fail if key does not exist
-	s, err = config.GetString("a.keydoesntexist")
-	suite.NotNil(err)
+	s = config.GetString("a.keydoesntexist")
 	suite.Equal("", s)
 
 	// Should fail if key does not exist
-	s, err = config.GetString("")
-	suite.NotNil(err)
+	s = config.GetString("")
 	suite.Equal("", s)
 
 	// Should fail if a middle part of path doesnt exist
-	s, err = config.GetString("x.b.fake.d")
-	suite.NotNil(err)
+	s = config.GetString("x.b.fake.d")
 	suite.Equal("", s)
 
 	// Should fail if we try to access key that is not string
-	s, err = config.GetString("a.port")
-	suite.NotNil(err)
+	s = config.GetString("a.port")
 	suite.Equal("", s)
 }
 

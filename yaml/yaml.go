@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"reflect"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -76,102 +75,94 @@ func (y *Yaml) unwrap(key string, data map[string]interface{}) (interface{}, err
 	return nil, errors.New("something unexpected happened while unwrapping value")
 }
 
-func (y *Yaml) GetStrings(keys []string) ([]string, error) {
+func (y *Yaml) GetStrings(keys []string) []string {
 	vals := make([]string, len(keys))
 
 	for i, key := range keys {
-		s, err := y.GetString(key)
-		if err != nil {
-			return nil, fmt.Errorf("Key %v not found in configuration.\n", key)
-		}
-		vals[i] = s
+		vals[i] = y.GetString(key)
 	}
 
-	return vals, nil
+	return vals
 }
 
-func (y *Yaml) GetInts(keys []string) ([]int, error) {
+func (y *Yaml) GetInts(keys []string) []int {
 	vals := make([]int, len(keys))
 
 	for i, key := range keys {
-		s, err := y.GetInt(key)
-		if err != nil {
-			return nil, fmt.Errorf("Key %v not found in configuration.\n", key)
-		}
-		vals[i] = s
+		vals[i] = y.GetInt(key)
 	}
 
-	return vals, nil
+	return vals
 }
 
-func (y *Yaml) GetString(key string) (string, error) {
+func (y *Yaml) GetString(key string) string {
 	// Before we try to unwrap in yaml file lets check our cache
 	if val, ok := y.strings[key]; ok {
-		return val, nil
+		return val
 	}
 
 	// Otherwise its not in our cache so unwrap the value
 	val, err := y.unwrap(key, y.data)
 	if err != nil {
-		return "", fmt.Errorf("Unable to unwrap nested value: %v\n", err)
+		return ""
 	}
 
 	// See if what we get is actually a string
 	s, ok := val.(string)
 	if !ok {
-		return "", fmt.Errorf("Expected string value for key %v but found %T", key, reflect.TypeOf(val))
+		return ""
 	}
 
 	// Insert into our cache
 	y.strings[key] = s
 
-	return s, nil
+	return s
 }
 
-func (y *Yaml) GetInt(key string) (int, error) {
+func (y *Yaml) GetInt(key string) int {
 	// Before we try to unwrap in yaml file lets check our cache
 	if val, ok := y.ints[key]; ok {
-		return val, nil
+		return val
 	}
 
 	// Otherwise its not in our cache so unwrap the value
 	val, err := y.unwrap(key, y.data)
 	if err != nil {
-		return 0, fmt.Errorf("Unable to unwrap nested value: %v\n", err)
+		return 0
 	}
 
-	// See if what we get is actually a string
+	// See if what we get is actually an int
 	i, ok := val.(int)
 	if !ok {
-		return 0, fmt.Errorf("Expected string value for key %v but found %T", key, reflect.TypeOf(val))
+		return 0
 	}
 
 	// Insert into our cache
 	y.ints[key] = i
 
-	return i, nil
+	return i
 }
 
-func (y *Yaml) GetBool(key string) (bool, error) {
+func (y *Yaml) GetBool(key string) bool {
 	// Before we try to unwrap in yaml file lets check our cache
 	if val, ok := y.bools[key]; ok {
-		return val, nil
+		return val
 	}
 
 	// Otherwise its not in our cache so unwrap the value
 	val, err := y.unwrap(key, y.data)
 	if err != nil {
-		return false, fmt.Errorf("Unable to unwrap nested value: %v\n", err)
+		return false
 	}
 
 	// See if what we get is actually a string
 	b, ok := val.(bool)
 	if !ok {
-		return false, fmt.Errorf("Expected string value for key %v but found %T", key, reflect.TypeOf(val))
+		return false
 	}
 
 	// Insert into our cache
 	y.bools[key] = b
 
-	return b, nil
+	return b
 }
